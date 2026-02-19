@@ -2,7 +2,7 @@ name: Deploy Github Pages
 
 on:
     push:
-        branches: ["main"]
+        branches: ["master"]
     # 允许手动触发部署
     workflow_dispatch:
 
