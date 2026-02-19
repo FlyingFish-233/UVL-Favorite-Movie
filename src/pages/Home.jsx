@@ -10,7 +10,7 @@ const Home = () => {
 
     const [movies, setMovies] = useState([]);
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const { apiKey } = useMovieContext();
 
@@ -21,6 +21,7 @@ const Home = () => {
                 setError("Please enter your TMDB API key to load movies.");
                 return;
             }
+            setLoading(true);
             try {
                 const popularMovies = await getPopularMovies(apiKey);
                 setMovies(popularMovies ?? []);
