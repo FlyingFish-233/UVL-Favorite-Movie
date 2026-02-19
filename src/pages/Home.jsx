@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import "../css/Home.css";
 import { getPopularMovies, searchMovies } from "../services/api";
 import MovieCard from "../compenents/MovieCard";
+import { useMovieContext } from "../contexts/MovieContext";
 
 const Home = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -11,34 +12,43 @@ const Home = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const { apiKey } = useMovieContext();
+
     useEffect(() => {
-        // 只加载一次
         const loadPopularMovies = async () => {
+            if (!apiKey) {
+                setMovies([]);
+                setError("Please enter your TMDB API key to load movies.");
+                return;
+            }
             try {
-                const popularMovies = await getPopularMovies();
-                setMovies(popularMovies);
+                const popularMovies = await getPopularMovies(apiKey);
+                setMovies(popularMovies ?? []);
+                setError(null);
             } catch (err) {
                 console.log(err);
-                setError("Failed to load movies...");
+                setMovies([]);
+                setError("Failed to load movies... Please check your API key.");
             } finally {
                 setLoading(false);
             }
         };
 
         loadPopularMovies();
-    }, []);
+    }, [apiKey]);
 
     const handleSearch = async (e) => {
         e.preventDefault(); // 防止页面刷新
         if (!searchQuery.trim() || loading) return;
         setLoading(true);
         try {
-            const searchResults = await searchMovies(searchQuery);
-            setMovies(searchResults);
+            const searchResults = await searchMovies(searchQuery, apiKey);
+            setMovies(searchResults ?? []);
             setError(null);
         } catch (err) {
             console.log(err);
-            setError("Failed to search movies...");
+            setMovies([]);
+            setError("Failed to search movies... Please check your API key.");
         } finally {
             setLoading(false);
         }
